@@ -1,6 +1,6 @@
 
 const serverInfo = {
-    name: "Diamond Craft SMP",
+    name: "Bobinhos",
     version: "1.20.4",
     region: "US-East",
     maxPlayers: 50
@@ -10,7 +10,7 @@ const playersDatabase = [
     {
         id: 1,
         nickname: "Steve",
-        avatar: "https://minecraft.wiki/images/2/20/Steve_JE2_BE1.png",
+        avatar: "./images/avatars/SteveFace.png",
         joinDate: "2024-12-15",
         lastSeen: new Date().toISOString(),
         playtimeMinutes: 1250,
@@ -28,7 +28,7 @@ const playersDatabase = [
     {
         id: 2,
         nickname: "Alex",
-        avatar: "https://minecraft.wiki/images/f/f6/Alex_JE2_BE1.png",
+        avatar: "./images/avatars/AlexFace.png",
         joinDate: "2024-12-20",
         lastSeen: "2025-01-01T15:30:00.000Z",
         playtimeMinutes: 890,
@@ -46,7 +46,7 @@ const playersDatabase = [
     {
         id: 3,
         nickname: "Creeper_Hunter",
-        avatar: "https://minecraft.wiki/images/0/0a/Creeper_JE4_BE2.png",
+        avatar: "./images/avatars/CreeperFace.png",
         joinDate: "2024-11-10",
         lastSeen: new Date().toISOString(),
         playtimeMinutes: 2100,
@@ -203,14 +203,14 @@ function addCalculateListeners() {
 
 function addNewPlayer() {
     const avatarOptions = [
-        { name: "Steve", url: "https://minecraft.wiki/images/2/20/Steve_JE2_BE1.png" },
-        { name: "Alex", url: "https://minecraft.wiki/images/f/f6/Alex_JE2_BE1.png" },
-        { name: "Creeper", url: "https://minecraft.wiki/images/0/0a/Creeper_JE4_BE2.png" },
-        { name: "Zombie", url: "https://minecraft.wiki/images/4/4c/Zombie_JE3_BE2.png" },
-        { name: "Skeleton", url: "https://minecraft.wiki/images/8/8c/Skeleton_JE4_BE2.png" },
-        { name: "Enderman", url: "https://minecraft.wiki/images/5/50/Enderman_JE4_BE2.png" },
-        { name: "Spider", url: "https://minecraft.wiki/images/8/85/Spider_JE2_BE1.png" },
-        { name: "Witch", url: "https://minecraft.wiki/images/c/c0/Witch_JE2_BE2.png" }
+        { name: "Steve", url: "./images/avatars/SteveFace.png" },
+        { name: "Alex", url: "./images/avatars/AlexFace.png" },
+        { name: "Creeper", url: "./images/avatars/CreeperFace.png" },
+        { name: "Zombie", url: "./images/avatars/ZombieFace.png" },
+        { name: "Skeleton", url: "./images/avatars/SkeletonFace.png" },
+        { name: "Enderman", url: "./images/avatars/EndermanFace.png" },
+        { name: "Spider", url: "./images/avatars/SpiderFace.png" },
+        { name: "Witch", url: "./images/avatars/WitchFace.png" }
     ];
     
     showPlayerCreationModal(avatarOptions);
@@ -300,7 +300,7 @@ function showPlayerCreationModal(avatarOptions) {
         </div>
         
         <div class="form-group">
-            <label for="avatar-select">Choose Avatar:</label>
+            <label for="avatar-select">Escolha Avatar:</label>
             <select id="avatar-select">
                 ${avatarOptionsHTML}
             </select>
@@ -313,8 +313,8 @@ function showPlayerCreationModal(avatarOptions) {
         </div>
         
         <div class="modal-buttons">
-            <button id="create-player-btn" class="create-btn">Create Player</button>
-            <button id="cancel-player-btn" class="cancel-btn">Cancel</button>
+            <button id="create-player-btn" class="create-btn">Criar Player</button>
+            <button id="cancel-player-btn" class="cancel-btn">Cancelar</button>
         </div>
     `;
     
@@ -452,10 +452,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const scoreboard = document.getElementById('scoreboard');
         if (scoreboard.style.display === 'none') {
             scoreboard.style.display = 'grid';
-            btnPlayer.textContent = 'Hide Players';
+            btnPlayer.textContent = 'Esconder Players';
         } else {
             scoreboard.style.display = 'none';
-            btnPlayer.textContent = 'Show Players';
+            btnPlayer.textContent = 'Mostrar Players';
         }
     });
     
