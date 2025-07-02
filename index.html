@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Scoreboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1 id="main-title">Gaming Scoreboard</h1>
+        <p class="server-info">Server: <span id="server-name">Loading...</span> | Players: <span id="players-count">0</span></p>
+        <p class="current-time">Last Updated: <span id="current-datetime">Loading...</span></p>
+
+        <button id="btn-player">Show/Hide Players</button>
+        <button id="btn-add-player">Add New Player</button>
+
+        <!-- Dynamic content will be generated here -->
+        <div id="scoreboard">
+            <!-- Players will be created by JavaScript -->
+        </div>
+
+        <!-- Modal for player creation -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
