@@ -1,4 +1,4 @@
-// SERVER CONFIGURATION - Global server data
+
 const serverInfo = {
     name: "Diamond Craft SMP",
     version: "1.20.4",
@@ -6,7 +6,6 @@ const serverInfo = {
     maxPlayers: 50
 };
 
-// DYNAMIC DATABASE - Like Python global variables
 const playersDatabase = [
     {
         id: 1,
@@ -14,8 +13,9 @@ const playersDatabase = [
         avatar: "https://minecraft.wiki/images/2/20/Steve_JE2_BE1.png",
         joinDate: "2024-12-15",
         lastSeen: new Date().toISOString(),
-        playtimeMinutes: 1250, // Total minutes played
+        playtimeMinutes: 1250,
         isOnline: true,
+        deaths: 12,
         materials: {
             diamond: 5,
             gold: 12,
@@ -33,6 +33,7 @@ const playersDatabase = [
         lastSeen: "2025-01-01T15:30:00.000Z",
         playtimeMinutes: 890,
         isOnline: false,
+        deaths: 8,
         materials: {
             diamond: 3,
             gold: 8,
@@ -50,6 +51,7 @@ const playersDatabase = [
         lastSeen: new Date().toISOString(),
         playtimeMinutes: 2100,
         isOnline: true,
+        deaths: 23,
         materials: {
             diamond: 8,
             gold: 15,
@@ -61,7 +63,6 @@ const playersDatabase = [
     }
 ];
 
-// Material point values and images
 const materialValues = {
     diamond: 100,
     gold: 50,
@@ -71,7 +72,6 @@ const materialValues = {
     stone: 1
 };
 
-// Material images (using local files from images folder)
 const materialImages = {
     diamond: "./images/materials/diamond.png",
     gold: "./images/materials/gold.png",
@@ -81,13 +81,11 @@ const materialImages = {
     stone: "./images/materials/stone.png"
 };
 
-// FUNCTION to create HTML for one player (like Python function)
 function createPlayerHTML(player) {
     let materialsHTML = '';
     
-    // Loop through all materials for this player
     for (let material in player.materials) {
-        const materialImg = materialImages[material] || ''; // Get image URL
+        const materialImg = materialImages[material] || '';
         materialsHTML += `
             <div class="material">
                 <div class="material-info">
@@ -98,6 +96,10 @@ function createPlayerHTML(player) {
             </div>
         `;
     }
+    
+    const playerClass = getPlayerClass(player);
+    const minerLevel = getMinerLevel(player);
+    const deathRating = getDeathRating(player.deaths);
     
     return `
         <div class="player" id="player-${player.id}">
@@ -131,33 +133,54 @@ function createPlayerHTML(player) {
             <div class="materials">
                 ${materialsHTML}
             </div>
+            
+            <div class="player-classifications">
+                <div class="classification" style="border-left: 4px solid ${playerClass.color}">
+                    <span class="class-icon">${playerClass.icon}</span>
+                    <div class="class-info">
+                        <span class="class-name">${playerClass.type}</span>
+                        <span class="class-desc">${playerClass.description}</span>
+                    </div>
+                </div>
+                
+                <div class="classification" style="border-left: 4px solid ${minerLevel.color}">
+                    <span class="class-icon">${minerLevel.icon}</span>
+                    <div class="class-info">
+                        <span class="class-name">Nível ${minerLevel.level}: ${minerLevel.name}</span>
+                        <span class="class-desc">Minério preferido</span>
+                    </div>
+                </div>
+                
+                <div class="classification" style="border-left: 4px solid ${deathRating.color}">
+                    <span class="class-icon">${deathRating.icon}</span>
+                    <div class="class-info">
+                        <span class="class-name">${deathRating.rating}</span>
+                        <span class="class-desc">${player.deaths} mortes registradas</span>
+                    </div>
+                </div>
+            </div>
+            
             <p class="total-score">Total Score: <span>0</span></p>
             <button class="calculate-score">Calculate Score</button>
         </div>
     `;
 }
 
-// FUNCTION to display all players from database
 function displayAllPlayers() {
     const scoreboard = document.getElementById('scoreboard');
     const playersCount = document.getElementById('players-count');
     
-    // Clear existing content
     scoreboard.innerHTML = '';
     
-    // Create HTML for each player in database
     playersDatabase.forEach(player => {
         scoreboard.innerHTML += createPlayerHTML(player);
     });
     
-    // Update player count
     playersCount.textContent = playersDatabase.length;
     
-    // Add event listeners to calculate buttons
     addCalculateListeners();
 }
 
-// FUNCTION to add event listeners to calculate buttons
 function addCalculateListeners() {
     const calculateButtons = document.querySelectorAll('.calculate-score');
     calculateButtons.forEach(button => {
@@ -178,9 +201,7 @@ function addCalculateListeners() {
     });
 }
 
-// FUNCTION to add new player to database
 function addNewPlayer() {
-    // Array of available avatars with names
     const avatarOptions = [
         { name: "Steve", url: "https://minecraft.wiki/images/2/20/Steve_JE2_BE1.png" },
         { name: "Alex", url: "https://minecraft.wiki/images/f/f6/Alex_JE2_BE1.png" },
@@ -192,35 +213,24 @@ function addNewPlayer() {
         { name: "Witch", url: "https://minecraft.wiki/images/c/c0/Witch_JE2_BE2.png" }
     ];
     
-    // Show custom modal for player creation
     showPlayerCreationModal(avatarOptions);
 }
 
-// FUNCTION to update server information in the UI
 function updateServerInfo() {
     const serverNameElement = document.getElementById('server-name');
     const mainTitleElement = document.getElementById('main-title');
     const currentDateTimeElement = document.getElementById('current-datetime');
     
-    // Update server name in the page
     serverNameElement.textContent = serverInfo.name;
-    
-    // Update main title to include server name
     mainTitleElement.textContent = `${serverInfo.name} - Scoreboard`;
-    
-    // Update browser tab title
     document.title = `${serverInfo.name} - Scoreboard`;
-    
-    // Update current date and time
     currentDateTimeElement.textContent = getCurrentDateTime();
 }
 
-// Auto-update current time every minute
 setInterval(() => {
     updateServerInfo();
-}, 60000); // Update every 60 seconds
+}, 60000);
 
-// HELPER FUNCTIONS for time formatting
 function formatPlaytime(minutes) {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
@@ -268,12 +278,10 @@ function getCurrentDateTime() {
     });
 }
 
-// FUNCTION to show player creation modal with avatar dropdown
 function showPlayerCreationModal(avatarOptions) {
     const modal = document.getElementById('modal');
     const modalContent = modal.querySelector('.modal-content');
     
-    // Create dropdown options HTML
     let avatarOptionsHTML = '';
     avatarOptions.forEach((avatar, index) => {
         avatarOptionsHTML += `
@@ -283,7 +291,6 @@ function showPlayerCreationModal(avatarOptions) {
         `;
     });
     
-    // Create modal content
     modalContent.innerHTML = `
         <h2>🎮 Add New Player</h2>
         
@@ -311,14 +318,10 @@ function showPlayerCreationModal(avatarOptions) {
         </div>
     `;
     
-    // Show modal
     modal.style.display = 'flex';
-    
-    // Add event listeners
     setupModalEventListeners(avatarOptions);
 }
 
-// FUNCTION to setup modal event listeners
 function setupModalEventListeners(avatarOptions) {
     const modal = document.getElementById('modal');
     const avatarSelect = document.getElementById('avatar-select');
@@ -328,7 +331,6 @@ function setupModalEventListeners(avatarOptions) {
     const cancelBtn = document.getElementById('cancel-player-btn');
     const nicknameInput = document.getElementById('player-nickname');
     
-    // Update preview when dropdown changes
     avatarSelect.addEventListener('change', function() {
         const selectedIndex = parseInt(this.value);
         const selectedAvatar = avatarOptions[selectedIndex];
@@ -336,7 +338,6 @@ function setupModalEventListeners(avatarOptions) {
         previewName.textContent = selectedAvatar.name;
     });
     
-    // Create player button
     createBtn.addEventListener('click', function() {
         const nickname = nicknameInput.value.trim() || "Player" + (playersDatabase.length + 1);
         const selectedIndex = parseInt(avatarSelect.value);
@@ -346,21 +347,17 @@ function setupModalEventListeners(avatarOptions) {
         closeModal();
     });
     
-    // Cancel button
     cancelBtn.addEventListener('click', closeModal);
     
-    // Close modal when clicking outside
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();
         }
     });
     
-    // Focus on nickname input
     nicknameInput.focus();
 }
 
-// FUNCTION to create new player with provided data
 function createNewPlayerWithData(nickname, avatarUrl) {
     const newPlayer = {
         id: playersDatabase.length + 1,
@@ -370,6 +367,7 @@ function createNewPlayerWithData(nickname, avatarUrl) {
         lastSeen: new Date().toISOString(),
         playtimeMinutes: Math.floor(Math.random() * 60) + 10,
         isOnline: Math.random() > 0.5,
+        deaths: Math.floor(Math.random() * 20) + 1,
         materials: {
             diamond: Math.floor(Math.random() * 10),
             gold: Math.floor(Math.random() * 20),
@@ -384,21 +382,71 @@ function createNewPlayerWithData(nickname, avatarUrl) {
     displayAllPlayers();
 }
 
-// FUNCTION to close modal
 function closeModal() {
     const modal = document.getElementById('modal');
     modal.style.display = 'none';
 }
 
-// INITIALIZE - Run when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Update server information first
-    updateServerInfo();
+function getPlayerClass(player) {
+    const materials = player.materials;
     
-    // Display all players from database
+    if (materials.wood > materials.stone) {
+        return {
+            type: "Lenhador",
+            icon: "🪓",
+            color: "#8B4513",
+            description: "Especialista em coletar madeira"
+        };
+    } else {
+        return {
+            type: "Minerador",
+            icon: "⛏️", 
+            color: "#696969",
+            description: "Especialista em mineração"
+        };
+    }
+}
+
+function getMinerLevel(player) {
+    const materials = player.materials;
+    const ores = {
+        diamond: materials.diamond,
+        gold: materials.gold,
+        iron: materials.iron,
+        coal: materials.coal
+    };
+    
+    let maxOre = 'coal';
+    let maxAmount = ores.coal;
+    
+    for (let ore in ores) {
+        if (ores[ore] > maxAmount) {
+            maxAmount = ores[ore];
+            maxOre = ore;
+        }
+    }
+    
+    const levels = {
+        diamond: { level: 1, name: "Mestre Diamante", icon: "💎", color: "#00FFFF" },
+        gold: { level: 2, name: "Minerador Ouro", icon: "🥇", color: "#FFD700" },
+        iron: { level: 3, name: "Minerador Ferro", icon: "⚙️", color: "#C0C0C0" },
+        coal: { level: 4, name: "Minerador Carvão", icon: "⚫", color: "#36454F" }
+    };
+    
+    return levels[maxOre];
+}
+
+function getDeathRating(deaths) {
+    if (deaths <= 5) return { rating: "Sobrevivente", icon: "🛡️", color: "#27ae60" };
+    if (deaths <= 15) return { rating: "Aventureiro", icon: "⚔️", color: "#f39c12" };
+    if (deaths <= 30) return { rating: "Temerário", icon: "💥", color: "#e67e22" };
+    return { rating: "Imortal Tentando", icon: "💀", color: "#e74c3c" };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateServerInfo();
     displayAllPlayers();
     
-    // Show/Hide functionality
     const btnPlayer = document.getElementById('btn-player');
     btnPlayer.addEventListener('click', function() {
         const scoreboard = document.getElementById('scoreboard');
@@ -411,7 +459,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add new player functionality
     const btnAddPlayer = document.getElementById('btn-add-player');
     btnAddPlayer.addEventListener('click', addNewPlayer);
 });
