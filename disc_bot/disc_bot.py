@@ -15,7 +15,7 @@ client = discord.Client(intents=intents)
 async def on_ready():
     logging.info(f'Bot conectado: {client.user}')
 
-@client._enable_debug_event
+@client.event
 async def on_message(message):
     if message.author == client.user:
         return
