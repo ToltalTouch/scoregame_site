@@ -5,7 +5,7 @@ import discord
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s = %(levelname)s: %(message)s')
 
-intents = discord.Itents.default()
+intents = discord.Intents.default()
 intents.message_content = True
 intents.message_content = True
 
