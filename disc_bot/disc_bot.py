@@ -1,15 +1,14 @@
-from dotenv import load_dotenv
-from flask import Flask, jsonify
 import threading
 import logging
 import os
 import discord
+from flask import Flask, jsonify
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_KEY')
+# Carrega variáveis de ambiente (funciona tanto local quanto produção)
+TOKEN = os.getenv('DISCORD_TOKEN')
 
-app_stage = {'triger_launch': False}
-lock = threading.Lock
+app_stage = {'trigger_launch': False}
+lock = threading.Lock()
 api = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s = %(levelname)s: %(message)s')
@@ -17,18 +16,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s = %(levelname)s: %(m
 @api.route('/check_command', methods=['GET'])
 def check_command():
     with lock:
-        if app_stage['triger_launch']:
-            app_stage['triger_launch'] = False
-            logging.info("Sinal de lnaçamento foi recebido por um clinete")
-            return jsonify({'status': 'success', 'message': 'Command received.'}), 200
+        if app_stage['trigger_launch']:
+            logging.info("Sinal de lançamento foi recebido por um cliente")
+            return jsonify({'trigger': True, 'status': 'success', 'message': 'Command received.'}), 200
         else:
-            logging.info("Sinal de lan~çamento não foi recebido por um cliente")
-            return jsonify({'status': 'error', 'message': 'Command no received'}), 400
+            logging.info("Nenhum sinal de lançamento pendente")
+            return jsonify({'trigger': False, 'status': 'waiting', 'message': 'No command pending'}), 200
     
-@api.route('/reset_command', methods=['Post'])
+@api.route('/reset_command', methods=['POST'])
 def reset_command():
     with lock:
-        app_stage['triger_launch'] = True
+        app_stage['trigger_launch'] = False
     logging.info("Sinal de lançamento foi resetado por um cliente")
     return jsonify({'status': 'success', 'message': 'Command reset.'}), 200
 
@@ -56,11 +54,11 @@ async def on_message(message):
         await message.channel.send("@here Sinal enviado! O servidor Minecraft será iniciado em breve.")
 
 if __name__ == '__main__':
-    api_thread = threading.Thread(targer=run_api)
+    api_thread = threading.Thread(target=run_api)
     api_thread.daemon = True
     api_thread.start()
 
     if TOKEN is None:
-        logging.error("ERRO CRITICO: Token do Discord não encontrado.")
+        logging.error("ERRO CRÍTICO: Token do Discord não encontrado.")
     else:
         client.run(TOKEN)
