@@ -48,7 +48,6 @@ class MinecraftLauncher:
         self.running = False
 
     def _make_request(self, endpoint: str, method: str = 'GET', data: Optional[Dict] = None) -> Optional[Dict[Any, Any]]:
-        """Faz requisição HTTP com retry logic"""
         url = f"{CONFIG['SERVER_URL']}/{endpoint}"
         
         for attempt in range(CONFIG['MAX_RETRIES']):
@@ -99,30 +98,48 @@ class MinecraftLauncher:
         
         try:
             if os.name == 'nt':  # Windows
-                result = subprocess.run(
-                    'start minecraft:', 
-                    shell=True, 
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-                logging.info("Minecraft iniciado com sucesso!")
-                self.last_launch_time = current_time
-                return True
+                # Lista de métodos para tentar lançar o Minecraft
+                launch_methods = [
+                    'start minecraft:',  # Protocolo URL do Minecraft
+                    'start "" "C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho padrão
+                    'start "" "C:\\Program Files\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho alternativo
+                    'start "" "%APPDATA%\\.minecraft\\MinecraftLauncher.exe"',  # Caminho no AppData
+                ]
+                
+                for i, method in enumerate(launch_methods, 1):
+                    try:
+                        logging.info(f"Tentativa {i}: {method}")
+                        result = subprocess.run(
+                            method, 
+                            shell=True, 
+                            check=True,
+                            capture_output=True,
+                            text=True,
+                            timeout=10
+                        )
+                        logging.info(f"Minecraft iniciado com sucesso usando método {i}!")
+                        self.last_launch_time = current_time
+                        return True
+                    except subprocess.CalledProcessError as e:
+                        logging.warning(f"Método {i} falhou: {e}")
+                        continue
+                    except subprocess.TimeoutExpired:
+                        logging.info(f"Método {i} executado (timeout esperado)")
+                        self.last_launch_time = current_time
+                        return True
+                
+                logging.error("Todos os métodos de lançamento falharam")
+                logging.info("Dica: Certifique-se de que o Minecraft Launcher está instalado")
+                return False
             else:
                 logging.error("Sistema operacional não suportado. Apenas Windows é suportado.")
                 return False
                 
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Erro ao executar comando: {e}")
-            logging.error(f"Saída do erro: {e.stderr}")
-            return False
         except Exception as e:
             logging.error(f"Erro inesperado ao iniciar o Minecraft: {e}")
             return False
 
     def reset_server_command(self) -> bool:
-        """Reset do comando no servidor"""
         logging.info("Resetando sinal de lançamento no servidor...")
         result = self._make_request('reset_command', 'POST')
         
@@ -134,7 +151,6 @@ class MinecraftLauncher:
             return False
 
     def check_server_command(self) -> bool:
-        """Verifica se há comando de lançamento pendente"""
         result = self._make_request('check_command')
         
         if result and isinstance(result, dict):
@@ -150,7 +166,6 @@ class MinecraftLauncher:
             return False
 
     def run(self):
-        """Loop principal do cliente"""
         consecutive_errors = 0
         max_consecutive_errors = 5
         
@@ -183,7 +198,6 @@ class MinecraftLauncher:
         logging.info("Cliente encerrado")
 
 def main():
-    """Função principal"""
     try:
         launcher = MinecraftLauncher()
         launcher.run()
