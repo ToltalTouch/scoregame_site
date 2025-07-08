@@ -7,6 +7,14 @@ from flask import Flask, jsonify
 # Carrega variáveis de ambiente (funciona tanto local quanto produção)
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+# Debug temporário - remover após resolver
+logging.info(f"Variáveis de ambiente disponíveis: {list(os.environ.keys())}")
+logging.info(f"DISCORD_TOKEN encontrado: {'Sim' if TOKEN else 'Não'}")
+if TOKEN:
+    logging.info(f"TOKEN (primeiros 10 chars): {TOKEN[:10]}...")
+else:
+    logging.info("TOKEN é None ou vazio")
+
 app_stage = {'trigger_launch': False}
 lock = threading.Lock()
 api = Flask(__name__)
@@ -54,11 +62,29 @@ async def on_message(message):
         await message.channel.send("@here Sinal enviado! O servidor Minecraft será iniciado em breve.")
 
 if __name__ == '__main__':
+    # Inicia a API em uma thread separada
     api_thread = threading.Thread(target=run_api)
     api_thread.daemon = True
     api_thread.start()
+    logging.info("Flask API iniciada na thread secundária")
 
-    if TOKEN is None:
+    # Verifica se o token existe
+    if TOKEN is None or TOKEN.strip() == "":
         logging.error("ERRO CRÍTICO: Token do Discord não encontrado.")
+        logging.error("Verifique se a variável de ambiente DISCORD_TOKEN está configurada.")
+        logging.error("No Render: Settings > Environment > Add Environment Variable")
+        # Não encerra o programa, apenas a API Flask continuará rodando
+        logging.info("Mantendo apenas a API Flask ativa...")
+        import time
+        while True:
+            time.sleep(60)  # Mantém o processo vivo
     else:
-        client.run(TOKEN)
+        logging.info("Token encontrado, iniciando Discord Bot...")
+        try:
+            client.run(TOKEN)
+        except Exception as e:
+            logging.error(f"Erro ao iniciar o Discord Bot: {e}")
+            # Mantém a API ativa mesmo se o bot falhar
+            import time
+            while True:
+                time.sleep(60)
