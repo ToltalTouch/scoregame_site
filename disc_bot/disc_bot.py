@@ -55,11 +55,16 @@ async def on_message(message):
     if message.author == client.user:
         return
     if message.content.lower() == '!minecraft':
-        logging.info("Comando !minecraft recebido. Iniciando o servidor...")
+        logging.info("Comando !minecraft recebido. Iniciando o TLauncher...")
         with lock:
             app_stage['trigger_launch'] = True
+        await message.channel.send("@here Sinal enviado! O TLauncher será iniciado em breve.")
         
-        await message.channel.send("@here Sinal enviado! O servidor Minecraft será iniciado em breve.")
+    if message.content.lower() == '!server':
+        logging.info("Comando !server recebido. Iniciando o servidor...")
+        with lock:
+            app_stage['trigger_launch'] = True
+        await message.channel.send("@here Sinal enviado! O servidor será iniciado em breve.")
 
 if __name__ == '__main__':
     # Inicia a API em uma thread separada
