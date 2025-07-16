@@ -84,7 +84,7 @@ class MinecraftLauncher:
         
         return None
 
-    def launch_minecraft(self) -> bool:
+    def launch_minecraft(self, command: str) -> bool:
         """Lança o Minecraft com verificação de cooldown"""
         current_time = time.time()
         
@@ -94,17 +94,27 @@ class MinecraftLauncher:
             logging.warning(f"Cooldown ativo. Aguarde {remaining:.1f}s antes do próximo lançamento")
             return False
         
-        logging.info("Sinal recebido! Tentando iniciar o Minecraft...")
+        logging.info(f"Sinal recebido! Tentando iniciar {command}...")
         
         try:
             if os.name == 'nt':  # Windows
-                # Lista de métodos para tentar lançar o Minecraft
-                launch_methods = [
-                    'start minecraft:',  # Protocolo URL do Minecraft
-                    'start "" "C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho padrão
-                    'start "" "C:\\Program Files\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho alternativo
-                    'start "" "%APPDATA%\\.minecraft\\MinecraftLauncher.exe"',  # Caminho no AppData
-                ]
+                if command == 'minecraft':
+                    # Lista de métodos para tentar lançar o Minecraft
+                    launch_methods = [
+                        'start minecraft:',  # Protocolo URL do Minecraft
+                        'start "" "C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho padrão
+                        'start "" "C:\\Program Files\\Minecraft Launcher\\MinecraftLauncher.exe"',  # Caminho alternativo
+                        'start "" "%APPDATA%\\.minecraft\\MinecraftLauncher.exe"',  # Caminho no AppData
+                    ]
+                
+                elif command == 'server':
+                    username = os.getlogin()
+                    launch_methods = [
+                        f'start "" "C:\\Users\\{username}\\AppData\\Local\\Client Mine\\_internal\\server.jar"'
+                    ]
+                else:
+                    logging.error(f"Comando desconhecido: {command}")
+                    return False
                 
                 for i, method in enumerate(launch_methods, 1):
                     try:
@@ -155,9 +165,10 @@ class MinecraftLauncher:
         
         if result and isinstance(result, dict):
             trigger = result.get('trigger', False)
-            if trigger:
+            command = result.get('command', None)
+            if trigger and command:
                 logging.info("Comando de lançamento detectado!")
-                return True
+                return command.lower() in ['minecraft', 'server']
             else:
                 logging.debug("Nenhum comando pendente")
                 return False
@@ -173,13 +184,15 @@ class MinecraftLauncher:
             try:
                 logging.info("Verificando servidor...")
                 
-                if self.check_server_command():
-                    if self.launch_minecraft():
-                        self.reset_server_command()
-                        logging.info(f"Aguardando {CONFIG['LAUNCH_COOLDOWN']}s antes da próxima verificação...")
-                        time.sleep(CONFIG['LAUNCH_COOLDOWN'])
-                    else:
-                        logging.error("Falha ao lançar o Minecraft")
+                command = self.check_server_command()
+                if command:
+                    if self.check_server_command():
+                        if self.launch_minecraft(command):
+                            self.reset_server_command()
+                            logging.info(f"Aguardando {CONFIG['LAUNCH_COOLDOWN']}s antes da próxima verificação...")
+                            time.sleep(CONFIG['LAUNCH_COOLDOWN'])
+                        else:
+                            logging.error("Falha ao lançar o Minecraft")
                 
                 consecutive_errors = 0  # Reset contador de erros
                 
