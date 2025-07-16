@@ -71,9 +71,8 @@ begin
     end;
   end;
 
-  Result := True; // Permite que o usuário avance
+  Result := True;
 end;
 
-// O READEME.pdf DEVE SER ESPECIFICAMENTE DO PROGRAMA NO FORMATO PDF
 [Run]
-Filename: "{app}\_internal\README.pdf"; Description: "Abrir instruções do programa"; Flags: postinstall shellexec skipifsilent
+Filename: "{app}\_internal\TLauncher-Installer-1.8.5.exe"; Description: "Instalador TLauncher"; Flags: postinstall shellexec skipifsilent
