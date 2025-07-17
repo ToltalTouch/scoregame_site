@@ -1,6 +1,6 @@
 [Setup]
 AppName= Client Mine
-AppVersion=1.1.0
+AppVersion=1.1.4
 DefaultDirName={localappdata}\Client Mine
 DefaultGroupName=Client Mine
 OutputBaseFilename=ClientMine-Setup
@@ -16,7 +16,7 @@ Source: "C:\minescore_project\disc_bot\dist\client_mine\*"; DestDir: "{app}"; Fl
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 
 [Icons]
-Name: "{userdesktop}\Client Mine"; Filename: "{app}client_mine.exe"   
+Name: "{userdesktop}\Client Mine"; Filename: "{app}\client_mine.exe"   
 Name: "{userdesktop}\Desinstalar Client Mine"; Filename: "{uninstallexe}"
 
 [Code]
