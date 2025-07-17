@@ -65,8 +65,6 @@ class MinecraftLauncher:
                     return response.json()
                 return {'success': True}
                 
-            except requests.exceptions.Timeout:
-                logging.warning(f"Timeout na tentativa {attempt + 1}/{CONFIG['MAX_RETRIES']}")
             except requests.exceptions.ConnectionError:
                 logging.warning(f"Erro de conexão na tentativa {attempt + 1}/{CONFIG['MAX_RETRIES']}")
             except requests.exceptions.HTTPError as e:
@@ -85,7 +83,6 @@ class MinecraftLauncher:
         return None
 
     def launch_minecraft(self, command: str) -> bool:
-        """Lança o Minecraft com verificação de cooldown"""
         current_time = time.time()
         
         # Verificar cooldown
@@ -141,9 +138,6 @@ class MinecraftLauncher:
                 logging.error("Todos os métodos de lançamento falharam")
                 logging.info("Dica: Certifique-se de que o Minecraft Launcher está instalado")
                 return False
-            else:
-                logging.error("Sistema operacional não suportado. Apenas Windows é suportado.")
-                return False
                 
         except Exception as e:
             logging.error(f"Erro inesperado ao iniciar o Minecraft: {e}")
@@ -182,14 +176,11 @@ class MinecraftLauncher:
         
         while self.running:
             try:
-                logging.info("Verificando servidor...")
-                
                 command = self.check_server_command()
                 if command:
                     if self.check_server_command():
                         if self.launch_minecraft(command):
                             self.reset_server_command()
-                            logging.info(f"Aguardando {CONFIG['LAUNCH_COOLDOWN']}s antes da próxima verificação...")
                             time.sleep(CONFIG['LAUNCH_COOLDOWN'])
                         else:
                             logging.error("Falha ao lançar o Minecraft")
@@ -205,7 +196,6 @@ class MinecraftLauncher:
                     break
             
             if self.running:
-                logging.info(f"Próxima verificação em {CONFIG['POLL_INTERVAL']}s...")
                 time.sleep(CONFIG['POLL_INTERVAL'])
         
         logging.info("Cliente encerrado")
